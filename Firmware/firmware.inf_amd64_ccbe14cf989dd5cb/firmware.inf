@@ -1,0 +1,48 @@
+[Version]
+Signature   = "$WINDOWS NT$"
+Provider    = %Provider%
+Class       = Firmware
+ClassGuid   = {f2e7dd72-6468-4e36-b6f1-6488f42c1b52}
+DriverVer   = 09/11/2023,00.1.26.0
+CatalogFile = catalog.cat
+PnpLockdown = 1
+
+[Manufacturer]
+%MfgName% = Firmware,NTamd64
+
+[Firmware.NTamd64]
+%FirmwareDesc% = Firmware_Install,UEFI\RES_{8319e082-2a00-4970-ad17-19bdb5466aff}
+
+[Firmware_Install.NT]
+CopyFiles = Firmware_CopyFiles
+
+[Firmware_CopyFiles]
+firmware.bin
+
+[Firmware_Install.NT.Hw]
+AddReg = Firmware_AddReg
+
+[Firmware_AddReg]
+HKR,,FirmwareId,,{8319e082-2a00-4970-ad17-19bdb5466aff}
+HKR,,FirmwareVersion,%REG_DWORD%,0x11a00
+HKR,,FirmwareFilename,,{8319e082-2a00-4970-ad17-19bdb5466aff}\firmware.bin
+
+[SourceDisksNames]
+1 = %DiskName%
+
+[SourceDisksFiles]
+firmware.bin = 1
+
+[DestinationDirs]
+DefaultDestDir = %DIRID_WINDOWS%,Firmware\{8319e082-2a00-4970-ad17-19bdb5466aff}
+
+[Strings]
+; localizable
+Provider     = "Dell, Inc."
+MfgName      = "Dell, Inc."
+FirmwareDesc = "System Firmware 1.26.0"
+DiskName     = "Firmware Update"
+
+; non-localizable
+DIRID_WINDOWS = 10
+REG_DWORD     = 0x00010001

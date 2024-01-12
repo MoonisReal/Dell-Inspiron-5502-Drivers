@@ -1,0 +1,148 @@
+;=============================================================================
+;
+; Copyright (c) 2019 - 2021, Intel Corporation.
+;
+; This Intel(R) Smart Sound Technology (Intel(R) SST) ("Software") is furnished
+; under license and may only be used or copied in accordance with the terms of
+; that license. No license, express or implied, by estoppel or otherwise,
+; to any intellectual property rights is granted by this document.
+; The Software is subject to change without notice, and should not be construed
+; as a commitment by Intel Corporation to market, license, sell or support any
+; product or technology. Unless otherwise provided for in the license under
+; which this Software is provided, the Software is provided AS IS, with no
+; warranties of any kind, express or implied. Except as expressly permitted by
+; the Software license, neither Intel Corporation nor its suppliers assumes any
+; responsibility or liability for any errors or inaccuracies that may appear
+; herein. Except as expressly permitted by the Software license, no part of
+; the Software may be reproduced, stored in a retrieval system, transmitted in
+; any form, or distributed by any means without the express written consent of
+; Intel Corporation.
+;
+;=============================================================================
+
+[Version]
+Signature   = "$Windows NT$"
+Class       = Extension
+ClassGuid   = {e2f84ce7-8efa-411c-aa69-97454ca4cb57}
+ExtensionId = {B16A31ED-0474-491D-ADBB-6AAC323D38D7}
+Provider    = Intel(R) Corporation
+CatalogFile = IntelMvaExtension.cat
+DriverVer = 11/19/2021,01.00.2049.00
+PnpLockDown = 1
+[Manufacturer]
+Intel(R) Corporation = Intel, NTAMD64.10.0...19041
+[Intel.NTAMD64.10.0...19041]
+; TGL HW IDs
+; TGL-LP
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_A0C8&VEN_8086&DEV_0222
+; TGL-H
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_43C8&VEN_8086&DEV_0222
+; TGL-H+CML-S-CPU (RKL)
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_F0C8&VEN_8086&DEV_0222
+
+; LKF HW IDs
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_98C8&VEN_8086&DEV_0222
+
+; EHL HW IDs
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_4B55&VEN_8086&DEV_0222
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_4B58&VEN_8086&DEV_0222
+
+; ADL HW IDs
+; ADL-S
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_7AD0&VEN_8086&DEV_0222
+; ADL-P
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_51C8&VEN_8086&DEV_0222
+; ADL-PS
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_51C9&VEN_8086&DEV_0222
+; ADL-M
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_51CC&VEN_8086&DEV_0222
+; ADL-N
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_54C8&VEN_8086&DEV_0222
+
+; MTL HW IDs
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_7E28&VEN_8086&DEV_0222
+; MTL-S
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_7F50&VEN_8086&DEV_0222
+
+; RPL HW IDs
+; RPL-S
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_7A50&VEN_8086&DEV_0222
+; RPL-P
+%IntelMvaExtensionDesc% = IntelMva, INTELAUDIO\DSP_CTLR_DEV_51CA&VEN_8086&DEV_0222
+
+[SourceDisksNames]
+1 = %DiskId1%
+2 = %DiskId1%,,,\SidModels
+[SourceDisksFiles]
+IntelMva.dll = 1,,
+settings.xml = 1,,
+WweConfigurationDll.dll = 1,,
+[DestinationDirs]
+DefaultDestDir = 13
+IntelMva.SidModels_CopyList = 13,SidModels
+[IntelMva.NT]
+CopyFiles = IntelMva.CopyList
+CopyFiles = IntelMva.SidModels_CopyList
+AddReg = IntelMva.ComRegistration,IntelMva.EnableMva,IntelMva.VoiceAsssistantsRegistration
+[IntelMva.CopyList]
+IntelMva.dll
+settings.xml
+WweConfigurationDll.dll
+[IntelMva.SidModels_CopyList]
+[IntelMva.ComRegistration]
+HKCR,CLSID\%IntelMvaClassGuid%,,,"IntelMva Class"
+HKCR,CLSID\%IntelMvaClassGuid%\InprocServer32,,,%13%\IntelMva.dll
+HKCR,CLSID\%IntelMvaClassGuid%\InprocServer32,"ThreadingModel",,"Apartment"
+HKCR,CLSID\%IntelMvaClassGuid%\Version,,,"1.0"
+; Flip the master MVA enable bit and set the Pattern ID (based on system locale)
+[IntelMva.EnableMva]
+HKR,,EnableMVAMode,0x00010001,1     ; Shall be set to 1 if ANY locale will support MVA
+HKR,,PatternID,,%IntelMvaClassGuid% ; Use localized string sections to set to GUID_NULL if MVA not supported in that locale
+[IntelMva.VoiceAsssistantsRegistration]
+HKR,,VAEventIDs,0x00010000,%CortanaEventGuid%,%AlexaEventGuid%,%XiaoweiEventGuid%,%LiangXiangEventGuid%,%XiaoleEventGuid%,%XiaoAiEventGuid%,%FukumaroEventGuid%,%NeLabiEventGuid%
+[IntelMva.NT.Interfaces]
+AddInterface = %OedIoctlGuid%,%OedIoctName%,IntelMvaInterfaceRegs
+[IntelMvaInterfaceRegs]
+AddReg = IntelMvaInterfaceRegs.AddReg,IntelMva.EnableMva_Default,IntelMva.EnableMva_zh-CN,IntelMva.EnableMva_en-US,WoVEngine.DefaultWoVEngineCfgDllPath
+[IntelMvaInterfaceRegs.AddReg]
+HKR,,IntelMvaPackagePath,,%13%
+
+; Default placed in VALocaleMap registry key. By default, Alexa supported in all locales
+[IntelMva.EnableMva_Default]
+HKR,VALocaleMap,VAEventIDs,0x00010000,%AlexaEventGuid%
+
+; OEM DLL will read VALocaleMap to determine what VAs to support based on current system locale.,
+; China Chinese (Simplified) (0804) only supports Xiaowei
+; VAEventIDs value will be placed in locale language id subkey: VALocaleMap\0804.
+[IntelMva.EnableMva_zh-CN]
+HKR,VALocaleMap\zh-CN,VAEventIDs,0x00010000,%XiaoweiEventGuid%
+
+; English (United States) (0409) only supports HeylessCortana and Alexa.
+; VAEventIDs value will be placed in locale language id subkey: VALocaleMap\0409.
+[IntelMva.EnableMva_en-US]
+HKR,VALocaleMap\en-US,VAEventIDs,0x00010000,%CortanaEventGuid%,%AlexaEventGuid%
+
+; Include localized strings section for all locales where MVA will be disabled
+; For example: es-MX (080A) will support MPA
+; [Strings.080A]
+; IntelMvaClassGuid = "{00000000-0000-0000-0000-000000000000}" ; GUID_NULL disables MVA
+
+; Default WoV Engine Configuration dll path.
+[WoVEngine.DefaultWoVEngineCfgDllPath]
+HKR,WoVEngineMap,WoVEngineCfgDllPath,,%13%\WweConfigurationDll.dll
+
+[Strings]
+DiskId1 = "Intel® Smart Sound Technology (Intel® SST) MVA Extension. Installation Disk"
+IntelMvaExtensionDesc = "Intel® Smart Sound Technology (Intel® SST) MVA Extension"
+IntelMvaClassGuid = "{494D5641-28D3-424A-90E4-69F984F1EEB7}"
+CortanaEventGuid = "{86FA368E-357C-408C-BFCF-B89CBA2B0006}"
+AlexaEventGuid = "{663CABB7-A1DF-41CE-8B77-E66F62351BC6}"
+XiaoweiEventGuid = "{8899AAD5-174B-4490-933B-06E2C5E8313C}"
+LiangXiangEventGuid = "{9877ABCB-1599-4F0E-BB64-C57D5678857D}"
+XiaoleEventGuid = "{FFF1948D-476B-42FE-A3B3-CEEE6420534C}"
+XiaoAiEventGuid = "{5FC96EA8-9D68-44D6-A449-21B01F2DB765}"
+FukumaroEventGuid = "{D3611534-A104-4BBF-8034-2DDA5A21D5F9}"
+NeLabiEventGuid = "{EEE856D4-7E58-484A-85DC-2B762E7B1162}"
+OedIoctlGuid = "{D562B888-CF36-4c54-841D-10FF7BFF4F60}"
+OedIoctName = "IntelApp2AudioDSPIface"
+

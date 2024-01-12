@@ -1,0 +1,174 @@
+;
+; Intel Wireless WiFi Link Adapters
+; wiman
+;
+; Copyright (C) 1997-2021 Intel Corporation. All rights reserved.
+;
+; The information and source code contained herein is the exclusive
+; property of Intel Corporation and may not be disclosed, examined
+; or reproduced in whole or in part without explicit written authorization
+; from the company.
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Class=SoftwareComponent
+ClassGuid={5c4c3332-344d-483c-8739-259e934c9cc8}
+Provider=%ManufacturerName%
+CatalogFile=WiMan.cat
+PnpLockDown=1
+DriverVer = 07/25/2021,2129.62.62.0
+
+[DestinationDirs]
+DefaultDestDir = 13
+Drivers_Dir_WiFi = 13, WiMan
+Drivers_Dir_HECI = 13, WiManH
+Drivers_Dir_HECI_uCode = 13, WiManHu
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+WiMan.sys  = 1,WiMan
+WiManH.sys  = 1,WiManH
+WiManHu.sys  = 1,WiManHu
+PFU_ADL.bin   = 1,WiManHu
+PFU_RPL.bin   = 1,WiManHu
+PFU_MTL_M.bin = 1,WiManHu
+PNVM.bin     = 1,WiManHu
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName%=Intel, NTamd64.10.0
+
+[Intel.NTamd64.10.0]
+%WiMan.DeviceDesc%=WiMan_WiFi_Device, SWC\842ADBFC-7499-407B-BD91-A52842585D0B  ; WiMan hw-id as WiFi extension
+%WiManH.DeviceDesc%=WiMan_HECI_Device, SWC\B74B5286-A7A5-444D-973B-71A66AF711BE  ; WiMan hw-id as HECI extension
+%WiManHu.DeviceDesc%=WiMan_HECI_uCode_ADL_Device, SWC\D1D545FE-A4C1-45BD-8C7C-2B90A7C3734A  ; WiMan hw-id as HECI extension supporting ucode update on ADL
+%WiManHu.DeviceDesc%=WiMan_HECI_uCode_RPL_Device, SWC\2CD1F6E8-34D3-478C-963E-D2E483BA4DFA  ; WiMan hw-id as HECI extension supporting ucode update on RPL
+%WiManHu.DeviceDesc%=WiMan_HECI_uCode_MTL_M_Device, SWC\E4B9BAF3-7014-4E93-BE10-2922B68D1F40  ; WiMan hw-id as HECI extension supporting ucode update on MTL_M
+
+[WiMan_WiFi_Device.NT]
+CopyFiles=Drivers_Dir_WiFi
+
+[WiMan_HECI_Device.NT]
+CopyFiles=Drivers_Dir_HECI
+
+[WiMan_HECI_uCode_ADL_Device.NT]
+CopyFiles=Drivers_Dir_HECI_uCode
+
+[WiMan_HECI_uCode_ADL_Device.NT.HW]
+AddReg = WiManHu.PfuFile_ADL.reg
+
+[WiMan_HECI_uCode_RPL_Device.NT]
+CopyFiles=Drivers_Dir_HECI_uCode
+
+[WiMan_HECI_uCode_RPL_Device.NT.HW]
+AddReg = WiManHu.PfuFile_RPL.reg
+
+[WiMan_HECI_uCode_MTL_M_Device.NT]
+CopyFiles=Drivers_Dir_HECI_uCode
+
+[WiMan_HECI_uCode_MTL_M_Device.NT.HW]
+AddReg = WiManHu.PfuFile_MTL_M.reg
+
+[Drivers_Dir_WiFi]
+WiMan.sys
+
+[Drivers_Dir_HECI]
+WiManH.sys
+
+[Drivers_Dir_HECI_uCode]
+WiManHu.sys
+PFU_ADL.bin
+PFU_RPL.bin
+PFU_MTL_M.bin
+PNVM.bin
+
+;-------------- Service installation
+[WiMan_WiFi_Device.NT.Services]
+AddService = WiMan,%SPSVCINST_ASSOCSERVICE%, WiMan_WiFi_Service_Inst, WiMan.EventLogWiFi
+
+[WiMan_HECI_Device.NT.Services]
+AddService = WiManH,%SPSVCINST_ASSOCSERVICE%, WiMan_HECI_Service_Inst, WiManH.EventLogHECI
+
+[WiMan_HECI_uCode_ADL_Device.NT.Services]
+AddService = WiManHu,%SPSVCINST_ASSOCSERVICE%, WiMan_HECI_uCode_Service_Inst, WiManHu.EventLogHECIuCode
+
+[WiMan_HECI_uCode_RPL_Device.NT.Services]
+AddService = WiManHu,%SPSVCINST_ASSOCSERVICE%, WiMan_HECI_uCode_Service_Inst, WiManHu.EventLogHECIuCode
+
+[WiMan_HECI_uCode_MTL_M_Device.NT.Services]
+AddService = WiManHu,%SPSVCINST_ASSOCSERVICE%, WiMan_HECI_uCode_Service_Inst, WiManHu.EventLogHECIuCode
+
+; -------------- WiMan driver install sections
+[WiMan_WiFi_Service_Inst]
+DisplayName    = %WiMan.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %13%\WiMan\WiMan.sys
+
+[WiMan_HECI_Service_Inst]
+DisplayName    = %WiManH.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %13%\WiManH\WiManH.sys
+
+[WiMan_HECI_uCode_Service_Inst]
+DisplayName    = %WiManHu.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %13%\WiManHu\WiManHu.sys
+
+[WiMan.AddEventLogWiFi.reg]
+HKR, , EventMessageFile, 0x00020000, %EventLogMessageDllPath_WiMan_WiFi%
+HKR, , TypesSupported,   0x00010001, 7
+
+[WiMan.EventLogWiFi]
+AddReg = WiMan.AddEventLogWiFi.reg
+
+[WiManH.AddEventLogHECI.reg]
+HKR, , EventMessageFile, 0x00020000, %EventLogMessageDllPath_WiMan_HECI%
+HKR, , TypesSupported,   0x00010001, 7
+
+[WiManH.EventLogHECI]
+AddReg = WiManH.AddEventLogHECI.reg
+
+[WiManHu.AddEventLogHECIuCode.reg]
+HKR, , EventMessageFile, 0x00020000, %EventLogMessageDllPath_WiMan_HECI_uCode%
+HKR, , TypesSupported,   0x00010001, 7
+
+[WiManHu.EventLogHECIuCode]
+AddReg = WiManHu.AddEventLogHECIuCode.reg
+
+[WiManHu.PfuFile_ADL.reg]
+HKR, ,"PfuFileName", 0x00000000 ,"PFU_ADL.bin"
+
+[WiManHu.PfuFile_RPL.reg]
+HKR, ,"PfuFileName", 0x00000000 ,"PFU_RPL.bin"
+
+[WiManHu.PfuFile_MTL_M.reg]
+HKR, ,"PfuFileName", 0x00000000 ,"PFU_MTL_M.bin"
+
+[Strings]
+SPSVCINST_ASSOCSERVICE= 0x00000002
+ManufacturerName="Intel"
+SPSVCSINST_STARTSERVICE= 0x00000800
+
+DiskName = "WiMan Installation Disk"
+WiMan.DeviceDesc = "Intel(R) Wireless Manageability"
+WiMan.SVCDESC = "WiMan Service"
+WiManH.DeviceDesc = "Intel(R) Wireless Manageability"
+WiManH.SVCDESC = "WiMan Service"
+WiManHu.DeviceDesc = "Intel(R) Wireless Manageability"
+WiManHu.SVCDESC = "WiMan Service"
+
+EventLogMessageDllPath_WiMan_WiFi = "%SystemRoot%\System32\netevent.dll;%13%\WiMan\WiMan.sys
+EventLogMessageDllPath_WiMan_HECI = "%SystemRoot%\System32\netevent.dll;%13%\WiManH\WiManH.sys
+EventLogMessageDllPath_WiMan_HECI_uCode = "%SystemRoot%\System32\netevent.dll;%13%\WiManHu\WiManHu.sys

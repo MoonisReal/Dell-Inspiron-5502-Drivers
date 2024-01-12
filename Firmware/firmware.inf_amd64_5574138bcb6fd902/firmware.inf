@@ -1,0 +1,48 @@
+[Version]
+Signature   = "$WINDOWS NT$"
+Provider    = %Provider%
+Class       = Firmware
+ClassGuid   = {f2e7dd72-6468-4e36-b6f1-6488f42c1b52}
+DriverVer   = 03/01/2022,10.41.01.06
+CatalogFile = catalog.cat
+PnpLockdown = 1
+
+[Manufacturer]
+%MfgName% = Firmware,NTamd64
+
+[Firmware.NTamd64]
+%FirmwareDesc% = Firmware_Install,UEFI\RES_{5264a089-86d6-e811-9f8b-f2801f1b9fd1}
+
+[Firmware_Install.NT]
+CopyFiles = Firmware_CopyFiles
+
+[Firmware_CopyFiles]
+firmware.bin
+
+[Firmware_Install.NT.Hw]
+AddReg = Firmware_AddReg
+
+[Firmware_AddReg]
+HKR,,FirmwareId,,{5264a089-86d6-e811-9f8b-f2801f1b9fd1}
+HKR,,FirmwareVersion,%REG_DWORD%,0x10410106
+HKR,,FirmwareFilename,,{5264a089-86d6-e811-9f8b-f2801f1b9fd1}\firmware.bin
+
+[SourceDisksNames]
+1 = %DiskName%
+
+[SourceDisksFiles]
+firmware.bin = 1
+
+[DestinationDirs]
+DefaultDestDir = %DIRID_WINDOWS%,Firmware\{5264a089-86d6-e811-9f8b-f2801f1b9fd1}
+
+[Strings]
+; localizable
+Provider     = "Dell, Inc."
+MfgName      = "Dell, Inc."
+FirmwareDesc = "NVMe Firmware 10.41.01.06"
+DiskName     = "NVMe Firmware Update"
+
+; non-localizable
+DIRID_WINDOWS = 10
+REG_DWORD     = 0x00010001
