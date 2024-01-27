@@ -1,0 +1,149 @@
+;
+; WbdiUsb.inf
+;
+
+[Version]
+Signature="$Windows NT$"
+Class=Biometric
+ClassGuid={53D29EF7-377C-4D14-864B-EB3A85769359}
+Provider=%ManufacturerName%
+CatalogFile=WbdiUsb.cat
+DriverVer = 10/26/2023,3.21.38.800
+
+[Manufacturer]
+%ManufacturerName%=Standard,NTamd64
+
+[Standard.NTamd64]
+%DeviceName%=MyDevice_Install, USB\VID_27C6&PID_538D
+%DeviceName%=MyDevice_Install, USB\VID_27C6&PID_532D
+
+[SourceDisksFiles]
+wbdi.dll=1
+GoodixEngineAdapter.dll=1 ;             Vendor engine adapter
+SessionService.exe=1
+
+[SourceDisksNames]
+1 = %DiskName%
+
+; =================== UMDF Device ==================================
+
+[MyDevice_Install.NT]
+CopyFiles=UMDriverCopy,WinBioEngineAdapterCopy,SvcCopyFiles
+Include=WINUSB.INF                      ; Import sections from WINUSB.INF
+Needs=WINUSB.NT                         ; Run the CopyFiles & AddReg directives for WinUsb.INF
+
+[MyDevice_Install.NT.hw]
+AddReg=usbinterface_AddReg
+AddReg=DriverPlugInAddReg, DatabaseAddReg
+
+[MyDevice_Install.NT.Services]
+AddService=WUDFRd,0x000001fa,WUDFRD_ServiceInstall  ; flag 0x2 sets this as the service for the device
+AddService=WinUsb,0x000001f8,WinUsb_ServiceInstall  ; this service is installed because its a filter.
+AddService=SessionSvc,0x00000800,SvcName_ServicceInstall ;
+
+;[MyDevice_Install.NT.CoInstallers]
+;AddReg=CoInstallers_AddReg
+
+[MyDevice_Install.NT.Wdf]
+UmdfDispatcher=WinUsb
+UmdfService=usbinterface,usbinterface_Install
+UmdfServiceOrder=usbinterface
+UmdfHostProcessSharing=ProcessSharingDisabled
+
+[usbinterface_Install]
+UmdfLibraryVersion=2.15.0 
+ServiceBinary=%12%\UMDF\wbdi.dll
+
+[usbinterface_AddReg]
+; By default, USBDevice class uses iProduct descriptor to name the device in
+; Device Manager on Windows 8 and higher.
+; Uncomment for this device to use %DeviceName% on Windows 8 and higher:
+;HKR,,FriendlyName,,%DeviceName%
+HKR,,"DeviceCharacteristics",0x10001,0x0100     ; Use same security checks on relative opens
+HKR,,"Security",,"D:P(A;;GA;;;BA)(A;;GA;;;SY)"  ; Allow generic-all access to Built-in administrators and Local system
+HKR,,"LowerFilters",0x00010008,"WinUsb" ; FLG_ADDREG_TYPE_MULTI_SZ | FLG_ADDREG_APPEND
+HKR,,"WinUsbPowerPolicyOwnershipDisabled",0x00010001,1
+HKR,,"Exclusive",0x10001,1
+HKR,,"SystemWakeEnabled",0x00010001,1
+HKR,,"DeviceIdleEnabled",0x00010001,1
+HKR,,"UserSetDeviceIdleEnabled",0x00010001,1
+HKR,,"DefaultIdleState",0x00010001,1
+HKR,,"DefaultIdleTimeout",0x00010001,5000
+HKR,"WDF","WdfDirectedPowerTransitionEnable",0x00010001,1
+
+
+[DriverPlugInAddReg]
+HKR,WinBio\Configurations,DefaultConfiguration,,"0"
+HKR,WinBio\Configurations\0,SensorMode,0x10001,1                                ; Basic - 1, Advanced - 2
+HKR,WinBio\Configurations\0,SystemSensor,0x10001,1                              ; UAC/Winlogon - 1
+HKR,WinBio\Configurations\0,SensorAdapterBinary,,"WinBioSensorAdapter.DLL"      ; Windows built-in WBDI sensor adapter.
+HKR,WinBio\Configurations\0,EngineAdapterBinary,,"GoodixEngineAdapter.DLL"      ; Vendor engine
+HKR,WinBio\Configurations\0,StorageAdapterBinary,,"WinBioStorageAdapter.DLL"    ; Windows built-in storage adapter
+HKR,WinBio\Configurations\0,DatabaseId,,"449B518E-CAE1-49FB-9A52-376E26E8546D"  ; Unique database GUID
+
+[DatabaseAddReg]
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{449B518E-CAE1-49FB-9A52-376E26E8546D},BiometricType,0x00010001,0x00000008
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{449B518E-CAE1-49FB-9A52-376E26E8546D},Attributes,0x00010001,0x00000001
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{449B518E-CAE1-49FB-9A52-376E26E8546D},Format,,"00000000-0000-0000-0000-000000000000"
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{449B518E-CAE1-49FB-9A52-376E26E8546D},InitialSize,0x00010001,0x00000020
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{449B518E-CAE1-49FB-9A52-376E26E8546D},AutoCreate,0x00010001,0x00000001
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{449B518E-CAE1-49FB-9A52-376E26E8546D},AutoName,0x00010001,0x00000001
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{449B518E-CAE1-49FB-9A52-376E26E8546D},FilePath,,""
+HKLM,System\CurrentControlSet\Services\WbioSrvc\Databases\{449B518E-CAE1-49FB-9A52-376E26E8546D},ConnectionString,,""
+
+[WUDFRD_ServiceInstall]
+DisplayName = %WudfRdDisplayName%
+ServiceType = 1
+StartType = 3
+ErrorControl = 1
+ServiceBinary = %12%\WUDFRd.sys
+LoadOrderGroup = Base
+
+[SvcName_ServicceInstall]
+DisplayName = %SessionDetection%
+ServiceType = 0x00000010
+StartType = 2
+ErrorControl = 1
+ServiceBinary = %12%\SessionService.exe
+
+[WinUsb_ServiceInstall]
+DisplayName = %WinUsb_SvcDesc%
+ServiceType = 1
+StartType = 3
+ErrorControl = 1
+ServiceBinary = %12%\WinUSB.sys
+
+;[CoInstallers_AddReg]
+;HKR,,CoInstallers32,0x00010000,"WUDFCoinstaller.dll"
+
+[DestinationDirs]
+UMDriverCopy=12,UMDF ; copy to drivers\umdf
+WinBioEngineAdapterCopy=11,WinBioPlugins ; copy to \Windows\System32\WinBioPlugins
+SvcCopyFiles=12
+
+[UMDriverCopy]
+wbdi.dll,,,0x00004000
+
+[WinBioEngineAdapterCopy]
+GoodixEngineAdapter.dll,,,0x00004000
+
+[SvcCopyFiles]
+SessionService.exe,,,0x00004000
+
+[SignatureAttributes]
+wbdi.dll = SignatureAttributes.WindowsHello
+GoodixEngineAdapter.dll = SignatureAttributes.WindowsHello
+
+[SignatureAttributes.WindowsHello]
+WindowsHello = true
+
+; =================== Generic ==================================
+
+[Strings]
+ManufacturerName="Goodix" ;TODO: Replace with your manufacturer name
+ClassName="Biometric Devices"
+DiskName = "usbinterface Installation Disk"
+SessionDetection = "Session Detection"
+WudfRdDisplayName="Windows Driver Foundation - User-mode Driver Framework Reflector"
+WinUsb_SvcDesc="WinUSB Driver"
+DeviceName="Goodix fingerprint"
